@@ -19,9 +19,6 @@ clyent==1.2.1
 
 commonmark==0.9.1
 comtypes==1.1.10
-conda==4.14.0
-conda-build==3.21.8
-conda-verify==3.4.2
 constantly==15.1.0
 
 cssselect==1.1.0
