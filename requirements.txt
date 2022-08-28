@@ -26,7 +26,7 @@ cssselect==1.1.0
 cytoolz==0.11.0
 daal4py==2021.5.3
 
-datashape==0.5.4
+datashape==0.5.2
 
 et-xmlfile==1.1.0
 
