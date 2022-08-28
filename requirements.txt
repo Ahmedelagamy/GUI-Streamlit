@@ -1,6 +1,6 @@
 altair==4.2.0
 appdirs==1.4.4
-
+numpy
 atomicwrites==1.4.0
 
 
