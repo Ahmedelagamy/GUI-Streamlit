@@ -52,7 +52,6 @@ st.dataframe(df)
 bad_reviews = df[df['TextBlob_Analysis'] == 'Negative']
 good_reviews = df[df['TextBlob_Analysis'] == 'Positive']
 
-
 # Minor mod
 st.header('Select Stop Words')
 
@@ -114,14 +113,12 @@ def clean_text(dataframe, col_name):
 # Applying function
 good_reviews = clean_text(good_reviews, 'review-text')
 bad_reviews = clean_text(bad_reviews, 'review-text')
-
-
+final_df= df.groupby(['asin', 'product-name', 'rating-count', 'rating-avg', 'TextBlob_Analysis','detect']).count()
 # Tab Structure
 tab = st.sidebar.radio('Select one:', ['Positive Review', 'Negative Review'])
 
-
 # Models
-if tab == 'Positive Reviews':
+if tab == 'Positive Review':
     st.subheader('Positive Reviews')
     st.dataframe(df[df['TextBlob_Analysis'] == 'Positive']['review-text'])
     umap_model = UMAP(n_neighbors=15, n_components=5, min_dist=0.0, metric='cosine')
@@ -146,14 +143,9 @@ if tab == 'Positive Reviews':
 
     st.write(good_model.visualize_heatmap())
     # pros
-    good_model.generate_topic_labels(nr_words=6, separator=',')
-
-    good_model.get_topic_freq().apply(lambda x: (x / 1966) * 100)
-
-    good_model.get_topic_freq(1)
-
-    good_model.get_representative_docs(5)
-
+    good_topic_info = good_model.get_topic_info()
+    good_topic_info['percentage'] = good_topic_info['Count'].apply(lambda x: (x / good_topic_info['Count'].sum()) * 100)
+    st.write(good_topic_info)
 
 else:
 
@@ -173,19 +165,21 @@ else:
     # Representative docs
     st.write(bad_model.get_representative_docs(doc_num))
     # Topic visualization
-    st.write(bad_model.visualize_topics())
-
     # Bar chart
     st.write(bad_model.visualize_barchart())
     # Term Rank
-    bad_model.visualize_term_rank()
+    st.write(bad_model.visualize_term_rank())
     # Heatmap
     bad_model.visualize_heatmap()
     # cons
     bad_model.generate_topic_labels(nr_words=6, separator=',')
-
     bad_model.get_representative_docs(doc_num)
 
-    pros_cons = pd.DataFrame()
+    bad_topic_info = bad_model.get_topic_info()
+    bad_topic_info['percentage'] = bad_topic_info['Count'].apply(lambda x: (x / bad_topic_info['Count'].sum()) * 100)
+    st.write(bad_topic_info)
 
-    bad_model.get_topic_freq()[1:].apply(lambda x: (x / 124) * 100)
+
+final_df.drop(['TextBlob_Subjectivity','TextBlob_Polarity', 'Unnamed: 0','review-text'], axis= 1, inplace = True)
+
+st.write(final_df)
