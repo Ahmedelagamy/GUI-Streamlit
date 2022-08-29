@@ -48,13 +48,6 @@ df.drop(index=1637, axis=0, inplace=True)
 # Displaying DataFrame
 st.dataframe(df)
 
-# Feature Engineering
-st.subheader('Negative Reviews')
-st.dataframe(df[df['TextBlob_Analysis'] == 'Negative']['review-text'])
-st.subheader('Positive Reviews')
-st.dataframe(df[df['TextBlob_Analysis'] == 'Positive']['review-text'])
-
-
 # Splitting data
 bad_reviews = df[df['TextBlob_Analysis'] == 'Negative']
 good_reviews = df[df['TextBlob_Analysis'] == 'Positive']
@@ -124,11 +117,13 @@ bad_reviews = clean_text(bad_reviews, 'review-text')
 
 
 # Tab Structure
-tab = st.tabs(["Positive Reviews", "Negative Reviews"])
+tab = st.sidebar.radio('Select one:', ['Positive Review', 'Negative Review'])
 
 
 # Models
 if tab == 'Positive Reviews':
+    st.subheader('Positive Reviews')
+    st.dataframe(df[df['TextBlob_Analysis'] == 'Positive']['review-text'])
     umap_model = UMAP(n_neighbors=15, n_components=5, min_dist=0.0, metric='cosine')
     topic_model_1 = BERTopic(diversity=.9, embedding_model='paraphrase-MiniLM-L3-v2', verbose=True,
                              calculate_probabilities=True, nr_topics=15, umap_model=umap_model)
@@ -163,7 +158,9 @@ if tab == 'Positive Reviews':
 else:
 
     """# Bad reviews model insight"""
-
+    # Feature Engineering
+    st.subheader('Negative Reviews')
+    st.dataframe(df[df['TextBlob_Analysis'] == 'Negative']['review-text'])
     topic_model_2 = BERTopic(embedding_model='paraphrase-MiniLM-L3-v2', verbose=True, nr_topics='auto',
                              calculate_probabilities=True)
 
@@ -187,7 +184,7 @@ else:
     # cons
     bad_model.generate_topic_labels(nr_words=6, separator=',')
 
-    bad_model.get_representative_docs(5)
+    bad_model.get_representative_docs(doc_num)
 
     pros_cons = pd.DataFrame()
 
