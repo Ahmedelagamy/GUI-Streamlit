@@ -44,7 +44,7 @@ file = st.file_uploader('upload the dataset you want to analyze')
 df = pd.read_excel(file)
 df.dropna(subset=['review-text'], inplace=True)
 df.drop(index=1637, axis=0, inplace=True)
-S
+
 # Displaying DataFrame
 st.dataframe(df)
 
