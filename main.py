@@ -41,10 +41,10 @@ file = st.file_uploader('upload the dataset you want to analyze')
 
 # Data preprocessing
 # noinspection PyArgumentList
-df = pd.read_excel('all_data_analyzed (1).xlsx')
+df = pd.read_excel(file)
 df.dropna(subset=['review-text'], inplace=True)
 df.drop(index=1637, axis=0, inplace=True)
-
+S
 # Displaying DataFrame
 st.dataframe(df)
 
