@@ -45,6 +45,12 @@ df = pd.read_excel(file)
 df.dropna(subset=['review-text'], inplace=True)
 df.drop(index=1637, axis=0, inplace=True)
 
+df['TextBlob_Subjectivity'] = df['review-text'].apply(get_subjectivity)
+df['TextBlob_Polarity'] = df['review-text'].apply(get_polarity)
+
+# Applying Analysis Function
+
+df['TextBlob_Analysis'] = df['TextBlob_Polarity'].apply(get_analysis)
 # Displaying DataFrame
 st.dataframe(df)
 
