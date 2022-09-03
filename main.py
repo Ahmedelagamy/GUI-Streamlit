@@ -130,7 +130,7 @@ if tab == 'Positive Review':
 
 
     st.subheader('Positive Reviews')
-    st.dataframe(df[df['TextBlob_Analysis'] == 'Positive']['review-text'])
+    st.dataframe(good_reviews[good_reviews['TextBlob_Analysis'] == 'Positive']['review-text'])
     umap_model = UMAP(n_neighbors=10, n_components=5, min_dist=0.0, metric='cosine')
     topic_model_1 = BERTopic(diversity=.9, embedding_model='paraphrase-MiniLM-L3-v2', verbose=True,
                              calculate_probabilities=True, nr_topics='auto', umap_model=umap_model)
@@ -165,7 +165,7 @@ else:
     """# Bad reviews model insight"""
     # Feature Engineering
     st.subheader('Negative Reviews')
-    st.dataframe(df[df['TextBlob_Analysis'] == 'Negative']['review-text'])
+    st.dataframe(bad_reviews[bad_reviews['TextBlob_Analysis'] == 'Negative']['review-text'])
     topic_model_2 = BERTopic(embedding_model='paraphrase-MiniLM-L3-v2', verbose=True, nr_topics='auto',
                              calculate_probabilities=True)
 
