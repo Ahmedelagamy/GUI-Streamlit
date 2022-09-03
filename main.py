@@ -43,14 +43,14 @@ file = st.file_uploader('upload the dataset you want to analyze')
 # noinspection PyArgumentList
 df = pd.read_excel(file)
 df.dropna(subset=['review-text'], inplace=True)
-df.drop(index=1637, axis=0, inplace=True)
 
-df['TextBlob_Subjectivity'] = df['review-text'].apply(get_subjectivity)
-df['TextBlob_Polarity'] = df['review-text'].apply(get_polarity)
 
 # Applying Analysis Function
-
+df['TextBlob_Subjectivity'] = df['review-text'].apply(get_subjectivity)
+df['TextBlob_Polarity'] = df['review-text'].apply(get_polarity)
 df['TextBlob_Analysis'] = df['TextBlob_Polarity'].apply(get_analysis)
+
+
 # Displaying DataFrame
 st.dataframe(df)
 
@@ -62,7 +62,7 @@ good_reviews = df[df['TextBlob_Analysis'] == 'Positive']
 st.header('Select Stop Words')
 
 custom_stopwords = st.text_input('enter stop word')
-
+new_words = custom_stopwords.split()
 
 def clean_text(dataframe, col_name):
     import re
@@ -83,7 +83,6 @@ def clean_text(dataframe, col_name):
     stop_words = set(stopwords.words("english"))
 
     # Creating a list of custom stopwords
-    new_words = custom_stopwords.split(',')
     stop_words = stop_words.union(new_words)
 
     docs = []
@@ -104,7 +103,8 @@ def clean_text(dataframe, col_name):
         text = text.split()
 
         # Stemming
-        PorterStemmer()
+        stemmer = PorterStemmer()
+        text = [stemmer.stem(word) for word in text if word not in stop_words]
         # Lemmatisation
         lem = WordNetLemmatizer()
         text = [lem.lemmatize(word) for word in text if word not in stop_words]
@@ -119,19 +119,23 @@ def clean_text(dataframe, col_name):
 # Applying function
 good_reviews = clean_text(good_reviews, 'review-text')
 bad_reviews = clean_text(bad_reviews, 'review-text')
-final_df= df.groupby(['asin', 'product-name', 'rating-count', 'rating-avg', 'TextBlob_Analysis','detect']).count()
+final_df = df.groupby(['asin', 'product-name', 'rating-count', 'rating-avg', 'TextBlob_Analysis','detect']).count()
+
+
 # Tab Structure
 tab = st.sidebar.radio('Select one:', ['Positive Review', 'Negative Review'])
 
 # Models
 if tab == 'Positive Review':
+
+
     st.subheader('Positive Reviews')
     st.dataframe(df[df['TextBlob_Analysis'] == 'Positive']['review-text'])
-    umap_model = UMAP(n_neighbors=15, n_components=5, min_dist=0.0, metric='cosine')
+    umap_model = UMAP(n_neighbors=10, n_components=5, min_dist=0.0, metric='cosine')
     topic_model_1 = BERTopic(diversity=.9, embedding_model='paraphrase-MiniLM-L3-v2', verbose=True,
-                             calculate_probabilities=True, nr_topics=15, umap_model=umap_model)
+                             calculate_probabilities=True, nr_topics='auto', umap_model=umap_model)
 
-    good_model = topic_model_1.fit(good_reviews)
+    good_model = topic_model_1.fit_transform(good_reviews)
 
     good_model.generate_topic_labels(nr_words=4)
 
@@ -148,7 +152,10 @@ if tab == 'Positive Review':
     st.write(good_model.visualize_barchart())
 
     st.write(good_model.visualize_heatmap())
-    # pros
+
+
+# pros
+
     good_topic_info = good_model.get_topic_info()
     good_topic_info['percentage'] = good_topic_info['Count'].apply(lambda x: (x / good_topic_info['Count'].sum()) * 100)
     st.write(good_topic_info)
